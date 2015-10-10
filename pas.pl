@@ -7,7 +7,7 @@ my $delay = 2000;
 #Hash of card names that should not be used for output (only the key matter, any value will do)
 my %vetoCardNames = ('HDA Intel HDMI'=>1);
 
-
+my $notifyCmd = "notify-send -t $delay";   
 
 my $cardNumber = -1;
 my $cardShortName = "";
@@ -16,7 +16,14 @@ my $activeCard = -1;
 
 my %cards = ();
 
-sub showActiveCardPopup(){
+sub logError{
+    my $title = $_[0];
+    my $error = $_[1];
+    `$notifyCmd "$title" "$error"`;
+    die("$title: $error\n");	
+}
+
+sub showActiveCardPopup{
     my $message = "";
     foreach my $card (sort(keys(%cards))){
 	my $name =$cards{$card};
@@ -32,7 +39,7 @@ sub showActiveCardPopup(){
     if ($message eq ""){
 	$message = "No soundcards";
     }
-    `notify-send -t $delay "Active Soundcard Changed" "$message"`;
+    `$notifyCmd "Active Soundcard Changed" "$message"`;
 }
 
 sub processData {
@@ -65,10 +72,13 @@ if ($cardNumber != -1){
     processData();
 }
 
+if (scalar(keys(%cards))==0){
+    logError("No Soundcards Found", "Unable to find any soundcards!\n\nYou may have added them all to \%vetoCardNames");
+}
+
 
 if ($activeCard == -1){
-    `notify-send -t $delay "Active Soundcard Not Found" "Unable to change active card as it could not be found."`;
-    die("Unable to find card to switch from\n");
+     logError("Active Soundcard Not Found", "Unable to change active card as it could not be found.\n\n<b>Perhaps no applications are currently playing?</b>");
 }
 
 #Find new active card
