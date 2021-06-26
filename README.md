@@ -1,5 +1,4 @@
-#perl-audio-switcher
-
+# perl-audio-switcher
 ![ScreenShot](screenshot.png)
 
 A small perl script to cycle through you audio outputs.
